@@ -13,9 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         
+
       - name: Debug
         run: |
-            ls -la
+          ls -la
+          pwd
+          
+      - name: Debug SSH
+        run: ssh -i <(echo "$SSH_PRIVATE_KEY") ubuntu@userprod-b1.deliver.ar "ls -la /home/ubuntu/nrelease"
+
             
       - name: Copia archivos
         uses: appleboy/scp-action@v0.1.4
