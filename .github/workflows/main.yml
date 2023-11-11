@@ -16,10 +16,9 @@ jobs:
 
       - name: Debug Secret
         run: |
-            echo "SSH_PRIVATE_KEY is present"
-            echo "$SSH_PRIVATE_KEY" | cat
-            echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}"
-            echo "$SSH_PRIVATE_KEY" | ssh-keygen -y -f -
+            echo "$SSH_PRIVATE_KEY" > private_key.pem
+            cat private_key.pem
+            ssh-keygen -y -f private_key.pem
             shell: /usr/bin/bash -e {0}
 
             
