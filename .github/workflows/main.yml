@@ -14,6 +14,15 @@ jobs:
         run: |
             ls -la
 
+      - name: Debug SSH Key
+        run: |
+          echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          cat private_key.pem
+          ssh-keygen -y -f private_key.pem
+        shell: bash
+
       - name: Copia archivos
         uses: appleboy/scp-action@v0.1.4
         with:
