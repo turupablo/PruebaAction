@@ -19,11 +19,7 @@ jobs:
             echo "$SSH_PRIVATE_KEY" > private_key.pem
             chmod 600 private_key.pem
             cat private_key.pem
-            openssl rsa -check -in private_key.pem -noout
-            openssl rsa -in private_key.pem -out private_key.pem
-            chmod 600 private_key.pem
-            cat private_key.pem
-            ssh-keygen -y -f private_key.pem
+            ssh-keygen -p -N "" -m pem -f private_key.pem
             shell: /usr/bin/bash -e {0}
 
             
