@@ -13,6 +13,9 @@ jobs:
       - name: Debug
         run: |
             ls -la
+      - name: Debug Secret
+        run: echo "$SSH_PRIVATE_KEY" | ssh-keygen -y -f -
+
             
       - name: Copia archivos
         uses: appleboy/scp-action@v0.1.4
