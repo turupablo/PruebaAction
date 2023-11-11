@@ -22,7 +22,6 @@ jobs:
             ssh-keygen -p -N "" -m pem -f private_key.pem
             shell: /usr/bin/bash -e {0}
 
-            
       - name: Copia archivos
         uses: appleboy/scp-action@v0.1.4
         with:
