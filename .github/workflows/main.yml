@@ -13,8 +13,11 @@ jobs:
       - name: Debug
         run: |
             ls -la
+            
       - name: Debug Secret
-        run: echo "$SSH_PRIVATE_KEY" | ssh-keygen -y -f -
+        run: |
+              echo "SSH_PRIVATE_KEY: $SSH_PRIVATE_KEY"
+              echo "$SSH_PRIVATE_KEY" | ssh-keygen -y -f -
 
             
       - name: Copia archivos
