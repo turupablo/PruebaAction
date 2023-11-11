@@ -1,9 +1,6 @@
 name: Deploy on Tag
 
-on:
-  push:
-    tags:
-      - 'UserAProd*'
+on: [push]
 
 jobs:
   deploy:
