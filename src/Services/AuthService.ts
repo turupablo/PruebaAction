@@ -1,6 +1,7 @@
-import { GoogleProfile, IUser } from "../Models/types";
+import { GoogleProfile, ISupplier, IUser } from "../Models/types";
 import User from "../Models/user.model";
 import { sendMail } from "./EmailService";
+import Supplier from "../Models/supplier.model";
 const bcrypt = require("bcrypt");
 
 export interface IUserAuthenticate {
@@ -11,6 +12,31 @@ export type AuthenticateServiceResponse = {
   code: number;
   user?: IUser;
   message?: string;
+};
+
+export type AuthenticateServiceSupplierResponse = {
+  code: number;
+  supplier?: ISupplier;
+  message?: string;
+};
+
+export type AuthenticateSupplier = {
+  cuit: string;
+  password: string;
+};
+
+const generatePassword = () => {
+  const length = 8;
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+  let retVal = "";
+  while (!(/[A-Z]/.test(retVal) && /[\W_]/.test(retVal))) {
+    retVal = "";
+    for (let i = 0, n = charset.length; i < length; ++i) {
+      retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+  }
+  return retVal;
 };
 
 exports.Authenticate = async ({
@@ -38,6 +64,31 @@ exports.Authenticate = async ({
   }
 };
 
+exports.AuthenticateSupplier = async ({
+  cuit,
+  password,
+}: AuthenticateSupplier): Promise<AuthenticateServiceSupplierResponse> => {
+  try {
+    let supplier = await Supplier.findOne({ cuit: cuit }).lean();
+
+    if (!supplier) {
+      return { message: "Ha Ocurrido un Error.!", code: 500 };
+    }
+
+    const isMatch = await bcrypt.compare(password, supplier.password);
+
+    if (!isMatch) {
+      return {
+        message: "cuit o Contraseña Incorrecta",
+        code: 400,
+      };
+    }
+    return { code: 200, supplier: supplier };
+  } catch (err) {
+    return { message: "Ha Ocurrido un Error", code: 500 };
+  }
+};
+
 exports.RecoverPassword = async (
   email: string
 ): Promise<AuthenticateServiceResponse> => {
@@ -52,7 +103,7 @@ exports.RecoverPassword = async (
     }
 
     // Generate a new password
-    const newPassword = Math.random().toString(36).slice(-8);
+    const newPassword = generatePassword();
 
     // Hash the new password
     const salt = await bcrypt.genSalt(10);
@@ -81,21 +132,18 @@ exports.RecoverPassword = async (
 exports.RegisterOrLoginGoogleUser = async (profile: GoogleProfile) => {
   try {
     let user = await User.findOne({ email: profile.emails[0].value }).lean();
-
     // If user doesn't exist, create a new one
     if (!user) {
       const newUser = new User({
         name: profile.displayName,
         email: profile.emails[0].value,
-        authMethods: ["google"],
-        isProvider: false,
-        createdOn: Date.now,
+        profilePicture: profile.photos[0].value,
+        createdOn: Date.now(),
       });
-      await newUser.save();
+      user = await newUser.save();
     }
-
     return { code: 200, user: user };
   } catch (err) {
-    return { message: "Ha Ocurrido un Error", code: 500 };
+    return { code: 500, user: null };
   }
 };

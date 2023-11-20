@@ -12,14 +12,13 @@ const PORT = process.env.PORT ?? 8000;
 
 const app: Application = express();
 app.use(cors());
-
 //Connect to Database.
 connectDB();
 
 app.use(express.json());
 app.use(morgan("tiny"));
 app.use(express.static("public"));
-
+//Yo me suscribo a la cola de usuarios ahi me van a llegar todos los topics relevantes.
 app.use(
   "/swagger",
   swaggerUi.serve,

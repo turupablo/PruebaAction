@@ -10,18 +10,15 @@ const userAddressSchema = new Schema({
 const userSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
+  dni: { type: String, required: false },
   password: { type: String, required: false },
-  isProvider: { type: Boolean, required: true },
   createdOn: { type: Date, default: Date.now },
   dateOfBirth: { type: Date, required: false },
-  address: { type: userAddressSchema, required: false },
+  address: { type: String, required: false },
   phone: { type: String, required: false },
   profilePicture: { type: String, required: false },
-  authMethods: {
-    type: [String],
-    enum: ["local", "google"],
-    required: true,
-  },
+  isProvider: { type: Boolean, default: false },
+  isEmployee: { type: Boolean, default: false },
 });
 
 const User = mongoose.model<IUser>("User", userSchema);

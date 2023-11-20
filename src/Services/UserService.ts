@@ -1,14 +1,24 @@
 import { IUserProfileUpdate, IUserRegister } from "../Models/types";
 import User from "../Models/user.model";
 const bcrypt = require("bcrypt");
-import multer from "multer";
 import cloudinaryService from "./CloudinaryService";
+import { EDA } from "./EDA/EdaIntegrator";
+
+type createUserEventPayload = {
+  username: string;
+  password: string;
+  name: string;
+  email: string;
+  document: string;
+};
 
 exports.Register = async ({
   name,
   email,
+  dni,
+  address,
+  phone,
   password,
-  isProvider,
 }: IUserRegister) => {
   try {
     let user = await User.findOne({ email }).lean();
@@ -20,21 +30,39 @@ exports.Register = async ({
     const NewUser = new User({
       name,
       email,
-      isProvider,
+      dni,
+      address,
+      phone,
       createdOn: Date.now(),
     });
     const salt = await bcrypt.genSalt(10);
     NewUser.password = await bcrypt.hash(password, salt);
-
+    const eda = EDA.getInstance();
     await NewUser.save();
+
+    const newUserEvent: createUserEventPayload = {
+      username: NewUser.name,
+      password: password,
+      name: NewUser.name,
+      email: NewUser.email,
+      document: NewUser.dni,
+    };
+    //Guild 2 Use Case
+    eda.publishMessage<createUserEventPayload>(
+      "/app/send/usuarios",
+      newUserEvent
+    );
 
     return {
       code: 200,
       payload: {
         name: NewUser.name,
         email: NewUser.email,
-        isProvider: NewUser.isProvider,
+        dni: NewUser.dni,
+        address: NewUser.address,
+        phone: NewUser.phone,
         createdOn: NewUser.createdOn,
+        isProvider: NewUser.isProvider,
       },
     };
   } catch (error) {
@@ -42,7 +70,14 @@ exports.Register = async ({
   }
 };
 
-exports.UpdateUser = async ({ email, name, password }: IUserProfileUpdate) => {
+exports.UpdateUser = async ({
+  email,
+  name,
+  dni,
+  address,
+  phone,
+  password,
+}: IUserProfileUpdate) => {
   try {
     let user = await User.findOne({ email }).lean();
 
@@ -54,6 +89,18 @@ exports.UpdateUser = async ({ email, name, password }: IUserProfileUpdate) => {
 
     if (name && name.trim() !== "") {
       updateFields.name = name;
+    }
+
+    if (dni && dni.trim() !== "") {
+      updateFields.dni = dni;
+    }
+
+    if (address && address.trim() !== "") {
+      updateFields.address = address;
+    }
+
+    if (phone && phone.trim() !== "") {
+      updateFields.phone = phone;
     }
 
     // Check if password is provided and is not an empty string
@@ -81,7 +128,11 @@ exports.UpdateUser = async ({ email, name, password }: IUserProfileUpdate) => {
       payload: {
         name: user?.name,
         email: user?.email,
+        dni: user?.dni,
+        address: user?.address,
+        phone: user?.phone,
         profilePicture: user?.profilePicture,
+        isProvider: user?.isProvider,
       },
     };
   } catch (error) {
@@ -120,8 +171,17 @@ export const updateUserProfilePicture = async (
 
 exports.DeleteUser = async (email: string) => {
   try {
-    let user = await User.deleteOne({ email }).lean();
+    await User.deleteOne({ email }).lean();
     return { code: 200, message: "User Deleted" };
+  } catch (error) {
+    return { code: 500, message: "Internal Server Error" };
+  }
+};
+
+exports.GetUserByEmail = async (email: string) => {
+  try {
+    let user = await User.findOne({ email }).lean();
+    return { code: 200, user: user };
   } catch (error) {
     return { code: 500, message: "Internal Server Error" };
   }
