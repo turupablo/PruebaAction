@@ -26,6 +26,32 @@
 					},
 					"payload": {
 						"properties": {
+							"vip": {
+								"type": "boolean"
+							},
+							"discount": {
+								"type": "number",
+								"format": "double"
+							},
+							"group": {
+								"type": "string"
+							},
+							"phone": {
+								"type": "string"
+							},
+							"address": {
+								"type": "string"
+							},
+							"isEmployee": {
+								"type": "boolean"
+							},
+							"dni": {
+								"type": "string"
+							},
+							"createdOn": {
+								"type": "string",
+								"format": "date-time"
+							},
 							"profilePicture": {
 								"type": "string"
 							},
@@ -232,6 +258,10 @@
 					},
 					"isProvider": {
 						"type": "boolean"
+					},
+					"createdOn": {
+						"type": "string",
+						"format": "date-time"
 					}
 				},
 				"required": [
@@ -246,7 +276,8 @@
 					"primaryColor",
 					"secondaryColor",
 					"password",
-					"isProvider"
+					"isProvider",
+					"createdOn"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -396,6 +427,64 @@
 				},
 				"required": [
 					"cuit"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"deliveryStatus": {
+				"type": "string",
+				"enum": [
+					"waiting_for_package",
+					"waiting_for_robot",
+					"on_transit",
+					"delivered"
+				]
+			},
+			"IOrder": {
+				"properties": {
+					"productName": {
+						"type": "string"
+					},
+					"productPrice": {
+						"type": "number",
+						"format": "double"
+					},
+					"productQuantity": {
+						"type": "number",
+						"format": "double"
+					},
+					"marketplace": {
+						"type": "string"
+					},
+					"purchaseId": {
+						"type": "string"
+					},
+					"userEmail": {
+						"type": "string"
+					},
+					"userDni": {
+						"type": "string"
+					},
+					"deliveryStatus": {
+						"$ref": "#/components/schemas/deliveryStatus"
+					},
+					"orderDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deliveryDate": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"productName",
+					"productPrice",
+					"productQuantity",
+					"marketplace",
+					"purchaseId",
+					"userEmail",
+					"userDni"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -947,6 +1036,46 @@
 						"description": "The supplier cuit.",
 						"in": "path",
 						"name": "cuit",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/order/{email}": {
+			"get": {
+				"operationId": "GetOrders",
+				"responses": {
+					"200": {
+						"description": "The user orders.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/IOrder"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all orders for a user.",
+				"tags": [
+					"Order"
+				],
+				"security": [
+					{
+						"BearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The user email.",
+						"in": "path",
+						"name": "email",
 						"required": true,
 						"schema": {
 							"type": "string"
