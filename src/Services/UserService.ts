@@ -36,8 +36,8 @@ exports.Register = async ({
       address,
       phone,
       createdOn: Date.now(),
-      vip,
-      discount,
+      vip: false,
+      discount: 0,
     });
     const salt = await bcrypt.genSalt(10);
     NewUser.password = await bcrypt.hash(password, salt);

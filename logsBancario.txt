@@ -1,0 +1,2 @@
+{"content":"{\"sender\":\"core-bancario\",\"event_name\":\"new_payment_deliverar\",\"date\":\"2023-11-23\",\"data\":{\"business_name\":\"Market 2\",\"amount\":100}}","from":"/topic/core-bancario"}
+{"content":"{\"sender\":\"core-bancario\",\"event_name\":\"new_payment_deliverar\",\"date\":\"2023-11-23\",\"data\":{\"business_name\":\"Dia\",\"amount\":100}}","from":"/topic/core-bancario"}
